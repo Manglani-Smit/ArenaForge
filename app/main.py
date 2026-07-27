@@ -1,13 +1,6 @@
 from fastapi import FastAPI
+from app.api.home import router as home_router
 
 app = FastAPI()
 
-
-@app.get("/")
-def home():
-    return {"message": "Welcome to ArenaForge 🚀"}
-@app.get("/health")
-def health_check():
-    return {
-        "status": "OK"
-    }
+app.include_router(home_router)
