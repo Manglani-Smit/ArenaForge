@@ -3,14 +3,40 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ArenaForge</title>
+
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 
 <body>
 
-    <h1>🎮 Welcome to ArenaForge</h1>
+<div class="hud">
 
-    <p>The battle begins...</p>
+    <div>❤️ Health: <span id="health">100</span></div>
+
+    <div>🪙 Coins: <span id="coins">0</span></div>
+
+    <div>👤 Zack</div>
+
+</div>
+
+<h1 class="title">
+    ArenaForge
+</h1>
+
+<div id="game-area">
+
+    <div id="player"></div>
+    <div id="coin"></div>
+
+</div>
+
+<p class="controls">
+    Press WASD to Move
+</p>
+
+<script src="/static/js/game.js"></script>
 
 </body>
 
