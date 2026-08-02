@@ -21,7 +21,7 @@ const gameHeight = gameArea.clientHeight;
 
 const playerSize = 40;
 const coinSize = 25;
-const moveSpeed = 10;
+const moveSpeed = 3;
 
 // --------------------
 // Player State
@@ -42,6 +42,29 @@ let coins = 0;
 // --------------------
 // Coin Collision
 // --------------------
+
+// --------------------
+// Keyboard State
+// --------------------
+
+let keys = {
+    w: false,
+    a: false,
+    s: false,
+    d: false
+};
+
+// --------------------
+// Animation State
+// --------------------
+
+let currentAnimation = "idle";
+let currentFrame = 0;
+let frameWidth = 32;
+let totalFrames = 11;
+let lastFrameTime = 0;
+let facing = "right";
+const animationSpeed = 100;
 
 function checkCoinCollision() {
 
@@ -71,33 +94,137 @@ function checkCoinCollision() {
 
 }
 
+
+// --------------------
+// Update Animation
+// --------------------
+
+function updateAnimation(timestamp) {
+
+    if (keys.w || keys.a || keys.s || keys.d) {
+
+        currentAnimation = "run";
+
+        animateFrames(timestamp);
+
+    } else {
+
+        currentAnimation = "idle";
+
+        currentFrame = 0;
+
+    }
+
+}
+
+// --------------------
+// Render Animation
+// --------------------
+
+function animateFrames(timestamp) {
+
+    if (timestamp - lastFrameTime > animationSpeed) {
+
+        currentFrame++;
+
+        if (currentFrame >= totalFrames) {
+            currentFrame = 0;
+        }
+
+        lastFrameTime = timestamp;
+    }
+
+}
+
+function renderAnimation() {
+
+    if (currentAnimation === "idle") {
+        player.style.backgroundImage = 'url("/static/images/idle.png")';
+    } else {
+        player.style.backgroundImage = 'url("/static/images/run.png")';
+    }
+
+    player.style.backgroundPosition =
+        -(currentFrame * frameWidth) + "px 0px";
+
+    if (facing === "right") {
+
+    player.style.transform = "scaleX(1)";
+
+    } else {
+
+    player.style.transform = "scaleX(-1)";
+
+}
+
+}
 // --------------------
 // Keyboard Input
 // --------------------
 
 document.addEventListener("keydown", function (event) {
 
-    if (event.key === "w" && playerY > 0) {
+    if (event.key === "w") keys.w = true;
+    if (event.key === "a") keys.a = true;
+    if (event.key === "s") keys.s = true;
+    if (event.key === "d") keys.d = true;
+
+});
+
+document.addEventListener("keyup", function (event) {
+
+    if (event.key === "w") keys.w = false;
+    if (event.key === "a") keys.a = false;
+    if (event.key === "s") keys.s = false;
+    if (event.key === "d") keys.d = false;
+
+});
+
+// --------------------
+// Game Loop
+// --------------------
+
+function gameLoop(timestamp) {
+
+    // Move Up
+    if (keys.w && playerY > 0) {
         playerY -= moveSpeed;
     }
 
-    if (event.key === "s" && playerY < gameHeight - playerSize) {
+    // Move Down
+    if (keys.s && playerY < gameHeight - playerSize) {
         playerY += moveSpeed;
     }
 
-    if (event.key === "a" && playerX > 0) {
+    // Move Left
+    if (keys.a && playerX > 0) {
         playerX -= moveSpeed;
+        facing = "left";
     }
 
-    if (event.key === "d" && playerX < gameWidth - playerSize) {
+    // Move Right
+    if (keys.d && playerX < gameWidth - playerSize) {
         playerX += moveSpeed;
+        facing = "right";
     }
 
     // Update Player Position
     player.style.left = playerX + "px";
     player.style.top = playerY + "px";
 
+    // Update Animation State
+    updateAnimation(timestamp);
+
+
+
+    // Render Animation
+    renderAnimation();
+
     // Check Collision
     checkCoinCollision();
 
-});
+    // Call Again
+    requestAnimationFrame(gameLoop);
+
+}
+    gameLoop();
