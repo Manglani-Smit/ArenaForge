@@ -7,6 +7,10 @@ const gameArea = document.getElementById("game-area");
 // --------------------
 
 const coinSound = new Audio("/static/sounds/Coin.mp3");
+const bgMusic = new Audio("/static/sounds/background.mp3");
+
+bgMusic.loop = true;
+bgMusic.volume = 1.0;
 
 // --------------------
 // Game Area
@@ -64,7 +68,27 @@ let frameWidth = 32;
 let totalFrames = 11;
 let lastFrameTime = 0;
 let facing = "right";
+let lastFPSUpdate = 0;
+let frames = 0;
 const animationSpeed = 100;
+
+function updateFPS(timestamp) {
+
+    frames++;
+
+    if (timestamp - lastFPSUpdate >= 1000) {
+
+        document.getElementById("fps").textContent =
+            "FPS : " + frames;
+
+        frames = 0;
+
+        lastFPSUpdate = timestamp;
+    }
+
+}
+
+
 
 function checkCoinCollision() {
 
@@ -164,10 +188,15 @@ function renderAnimation() {
 
 document.addEventListener("keydown", function (event) {
 
+    if (bgMusic.paused) {
+    bgMusic.play();
+    }
+
     if (event.key === "w") keys.w = true;
     if (event.key === "a") keys.a = true;
     if (event.key === "s") keys.s = true;
     if (event.key === "d") keys.d = true;
+
 
 });
 
@@ -225,6 +254,8 @@ function gameLoop(timestamp) {
 
     // Call Again
     requestAnimationFrame(gameLoop);
+
+    updateFPS(timestamp);
 
 }
     gameLoop();
