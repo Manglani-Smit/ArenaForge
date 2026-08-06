@@ -1,6 +1,13 @@
 const player = document.getElementById("player");
 const coin = document.getElementById("coin");
 const gameArea = document.getElementById("game-area");
+const enemy = document.getElementById("enemy");
+
+let enemyX = 600;
+let enemyY = 250;
+let lastHitTime = 0;
+const hitCooldown = 1000; // 1 second
+const enemySpeed = 1.5;
 
 // --------------------
 // Sound
@@ -70,6 +77,9 @@ let lastFrameTime = 0;
 let facing = "right";
 let lastFPSUpdate = 0;
 let frames = 0;
+let health = 100;
+let gameOver = false;
+let playerStarted = false;
 const animationSpeed = 100;
 
 function updateFPS(timestamp) {
@@ -88,7 +98,69 @@ function updateFPS(timestamp) {
 
 }
 
+function moveEnemy() {
 
+    if (enemyX < playerX) {
+
+        enemyX += enemySpeed;
+
+    }
+
+    if (enemyX > playerX) {
+
+        enemyX -= enemySpeed;
+
+    }
+
+    if (enemyY < playerY) {
+
+        enemyY += enemySpeed;
+
+    }
+
+    if (enemyY > playerY) {
+
+        enemyY -= enemySpeed;
+
+    }
+
+    enemy.style.left = enemyX + "px";
+    enemy.style.top = enemyY + "px";
+
+}
+
+function checkEnemyCollision(timestamp) {
+
+    if (
+
+        playerX < enemyX + playerSize &&
+        playerX + playerSize > enemyX &&
+        playerY < enemyY + playerSize &&
+        playerY + playerSize > enemyY
+
+    ) {
+
+        if (timestamp - lastHitTime > hitCooldown) {
+
+            health -= 10;
+
+            if (health < 0) {
+
+                health = 0;
+
+            }
+
+            updateHealthBar();
+
+            checkGameOver();
+
+            lastHitTime = timestamp;
+
+        }
+
+    }
+
+}
 
 function checkCoinCollision() {
 
@@ -119,6 +191,52 @@ function checkCoinCollision() {
 }
 
 
+function updateHealthBar() {
+
+    const healthBar = document.getElementById("health-bar");
+
+    healthBar.style.width = health + "%";
+
+    document.getElementById("health").textContent = health;
+
+    if (health > 70) {
+
+        healthBar.style.background = "lime";
+
+    } else if (health > 40) {
+
+        healthBar.style.background = "yellow";
+
+    } else {
+
+        healthBar.style.background = "red";
+
+    }
+
+}
+
+function checkGameOver() {
+
+    console.log("Health =", health);
+
+    if (health <= 0) {
+
+        console.log("GAME OVER CALLED");
+
+        gameOver = true;
+
+        showGameOver();
+
+    }
+
+}
+
+function showGameOver() {
+
+    document.getElementById("game-over-screen").style.display = "flex";
+
+}
+
 // --------------------
 // Update Animation
 // --------------------
@@ -126,6 +244,8 @@ function checkCoinCollision() {
 function updateAnimation(timestamp) {
 
     if (keys.w || keys.a || keys.s || keys.d) {
+
+        playerStarted = true;
 
         currentAnimation = "run";
 
@@ -207,14 +327,80 @@ document.addEventListener("keyup", function (event) {
     if (event.key === "s") keys.s = false;
     if (event.key === "d") keys.d = false;
 
+
+
 });
 
+document.addEventListener("keydown", function (event) {
+
+    if (event.key === "r" && gameOver) {
+
+        restartGame();
+
+    }
+
+    if (event.key === "h") {
+
+    health -= 10;
+
+    if (health < 0) {
+
+        health = 0;
+
+    }
+
+    updateHealthBar();
+
+    checkGameOver();
+}
+
+});
+function restartGame() {
+
+    gameOver = false;
+
+    health = 100;
+
+    coins = 0;
+
+    playerX = 200;
+    playerY = 200;
+
+    document.getElementById("coins").textContent = coins;
+
+    coinX = Math.floor(Math.random() * (gameWidth - coinSize));
+coinY = Math.floor(Math.random() * (gameHeight - coinSize));
+
+coin.style.left = coinX + "px";
+coin.style.top = coinY + "px";
+
+    updateHealthBar();
+
+    player.style.left = playerX + "px";
+    player.style.top = playerY + "px";
+
+    document.getElementById("game-over-screen").style.display = "none";
+
+    updateFPS(timestamp);
+    requestAnimationFrame(gameLoop);
+
+}
 // --------------------
 // Game Loop
 // --------------------
 
 function gameLoop(timestamp) {
+    if (gameOver) {
 
+    return;
+
+}
+
+    if (playerStarted) {
+
+    moveEnemy();
+
+}
     // Move Up
     if (keys.w && playerY > 0) {
         playerY -= moveSpeed;
@@ -240,6 +426,10 @@ function gameLoop(timestamp) {
     // Update Player Position
     player.style.left = playerX + "px";
     player.style.top = playerY + "px";
+
+    moveEnemy();
+
+    checkEnemyCollision(timestamp);
 
     // Update Animation State
     updateAnimation(timestamp);

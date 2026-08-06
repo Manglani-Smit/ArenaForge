@@ -13,15 +13,31 @@
 
 <div class="hud">
 
-    <div>❤️ Health: <span id="health">100</span></div>
+    <div class="health-section">
 
-    <div>🪙 Coins: <span id="coins">0</span></div>
-
-    <div id="fps">
-    FPS : 0
+        <div>
+    ❤️ Health:
+    <span id="health">100</span>
 </div>
 
-    <div>👤 Zack</div>
+        <div id="health-container">
+            <div id="health-bar"></div>
+        </div>
+
+    </div>
+
+    <div>
+        🪙 Coins :
+        <span id="coins">0</span>
+    </div>
+
+    <div id="fps">
+        FPS : 0
+    </div>
+
+    <div>
+        👤 Zack
+    </div>
 
 </div>
 
@@ -32,6 +48,7 @@
 <div id="game-area">
 
     <div id="player"></div>
+    <div id="enemy"></div>
     <div id="coin"></div>
 
 </div>
@@ -40,7 +57,16 @@
     Press WASD to Move
 </p>
 
+
 <script src="/static/js/game.js"></script>
+
+<div id="game-over-screen">
+
+    <h1>GAME OVER</h1>
+
+    <p>Press R to Restart</p>
+
+</div>
 
 </body>
 
